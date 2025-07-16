@@ -1,0 +1,18 @@
+{
+  "name": "pickup-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write src/",
+    "firebase:deploy": "firebase deploy --only firestore,storage",
+    "firebase:emulate": "firebase emulators:start"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
