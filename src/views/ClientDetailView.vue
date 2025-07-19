@@ -9,9 +9,13 @@
       <div class="card-body">
         <div class="text-center py-12 text-gray-500">
           <div class="text-6xl mb-4">🏪</div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">Client Detail View</h3>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            Client Detail View
+          </h3>
           <p class="text-gray-600 mb-4">Client ID: {{ $route.params.id }}</p>
-          <p class="text-gray-600">This view will show detailed client information and pickup history.</p>
+          <p class="text-gray-600">
+            This view will show detailed client information and pickup history.
+          </p>
         </div>
       </div>
     </div>
