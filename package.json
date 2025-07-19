@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:with-types": "vue-tsc && vite build",
     "preview": "vite preview",
+    "start": "node server.js",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest --coverage",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.16",
     "@heroicons/vue": "^2.0.18",
+    "express": "^4.18.2",
     "firebase": "^10.7.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.11",
