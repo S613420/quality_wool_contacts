@@ -7,7 +7,7 @@
             <div class="text-2xl">🐑</div>
             <div>
               <h1 class="text-xl font-bold text-gray-900">
-                Wool Pickup Tracker
+                Quality Wool Contacts
               </h1>
               <p class="text-xs text-gray-500 hidden sm:block">
                 Driver Dashboard

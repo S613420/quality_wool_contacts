@@ -1,7 +1,7 @@
 {
-  "name": "wool-pickup-tracker",
+  "name": "quality-wool-contacts",
   "version": "1.0.0",
-  "description": "A Progressive Web App for wool farm drivers to track pickups with offline capabilities",
+  "description": "Quality Wool Contacts - A Progressive Web App for wool farm drivers to track pickups with offline capabilities",
   "type": "module",
   "scripts": {
     "dev": "vite",
