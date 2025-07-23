@@ -13,6 +13,7 @@
                 Driver Dashboard
               </p>
             </div>
+            <!-- Updated title to Quality Wool Contacts -->
           </router-link>
         </div>
 
