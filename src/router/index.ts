@@ -14,10 +14,23 @@ const routes = [
     meta: { title: 'Clients' },
   },
   {
+    path: '/clients/new',
+    name: 'ClientNew',
+    component: () => import('../views/ClientFormView.vue'),
+    meta: { title: 'Add Client' },
+  },
+  {
     path: '/clients/:id',
     name: 'ClientDetail',
     component: () => import('../views/ClientDetailView.vue'),
     props: true,
+  },
+  {
+    path: '/clients/:id/edit',
+    name: 'ClientEdit',
+    component: () => import('../views/ClientFormView.vue'),
+    props: true,
+    meta: { title: 'Edit Client' },
   },
   {
     path: '/pickups',
