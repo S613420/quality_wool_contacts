@@ -20,7 +20,8 @@
     "firebase:deploy:hosting": "firebase deploy --only hosting",
     "firebase:deploy:all": "firebase deploy",
     "firebase:emulate": "firebase emulators:start",
-    "firebase:verify": "node scripts/verify-firebase-config.js"
+    "firebase:verify": "node scripts/verify-firebase-config.js",
+    "version:update": "node scripts/update-version.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.16",

@@ -36,11 +36,27 @@
       <div class="card-body space-y-4">
         <div class="flex justify-between">
           <span class="text-gray-600">Version</span>
-          <span class="font-medium">1.0.0</span>
+          <span class="font-medium">{{ getBuildInfo() }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Build Number</span>
+          <span class="font-medium">#{{ versionInfo.buildNumber }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Commit Hash</span>
+          <span class="font-medium font-mono text-xs">{{
+            getShortCommitHash()
+          }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-600">Deployed</span>
+          <span class="font-medium text-sm">{{ getDeploymentDate() }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">Environment</span>
-          <span class="font-medium">Development</span>
+          <span class="font-medium capitalize">{{
+            versionInfo.environment
+          }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-gray-600">Firebase Project</span>
@@ -71,6 +87,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAppStore } from '../stores'
+import {
+  versionInfo,
+  getBuildInfo,
+  getShortCommitHash,
+  getDeploymentDate,
+} from '../version'
 
 const appStore = useAppStore()
 const autoSync = ref(true)

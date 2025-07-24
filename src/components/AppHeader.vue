@@ -39,6 +39,21 @@
         </nav>
 
         <div class="flex items-center space-x-4">
+          <!-- Version Badge -->
+          <div
+            class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200"
+            :title="versionTooltip"
+          >
+            <span class="text-blue-500">🚀</span>
+            <span class="hidden sm:inline font-medium">{{
+              getBuildInfo()
+            }}</span>
+            <span class="sm:hidden font-medium"
+              >v{{ versionInfo.buildNumber }}</span
+            >
+          </div>
+
+          <!-- Sync Status Badge -->
           <div
             class="flex items-center space-x-2 px-3 py-1 rounded-full text-sm"
             :class="syncBadgeClasses"
@@ -84,8 +99,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '../stores'
+import { versionInfo, getBuildInfo, getDeploymentDate } from '../version'
 
 const appStore = useAppStore()
+
+const versionTooltip = computed(() => {
+  return `Version: ${versionInfo.version}.${versionInfo.buildNumber}\nCommit: ${versionInfo.commitHash}\nDeployed: ${getDeploymentDate()}\nEnvironment: ${versionInfo.environment}`
+})
 
 const syncStatusText = computed(() => {
   switch (appStore.syncStatus) {
