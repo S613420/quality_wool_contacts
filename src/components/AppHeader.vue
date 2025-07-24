@@ -1,15 +1,19 @@
 <template>
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+  <header
+    class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center">
           <router-link to="/" class="flex items-center space-x-3">
             <div class="text-2xl">🐑</div>
             <div>
-              <h1 class="text-xl font-bold text-gray-900">
+              <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">
                 Quality Wool Contacts
               </h1>
-              <p class="text-xs text-gray-500 hidden sm:block">
+              <p
+                class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block"
+              >
                 Driver Dashboard
               </p>
             </div>
@@ -39,12 +43,15 @@
         </nav>
 
         <div class="flex items-center space-x-4">
+          <!-- Theme Toggle -->
+          <ThemeToggle />
+
           <!-- Version Badge -->
           <div
-            class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200"
+            class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700"
             :title="versionTooltip"
           >
-            <span class="text-blue-500">🚀</span>
+            <span class="text-blue-500 dark:text-blue-400">🚀</span>
             <span class="hidden sm:inline font-medium">{{
               getBuildInfo()
             }}</span>
@@ -67,7 +74,7 @@
 
           <router-link
             to="/settings"
-            class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:text-gray-500 dark:hover:text-gray-400 dark:hover:bg-gray-800"
             title="Settings"
           >
             <svg
@@ -99,6 +106,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '../stores'
+import ThemeToggle from './ThemeToggle.vue'
 import {
   versionInfo,
   getBuildInfo,
@@ -167,9 +175,10 @@ const syncBadgeClasses = computed(() => {
 
 <style scoped>
 .nav-link {
-  @apply text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium transition-colors;
+  @apply text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 
+         px-3 py-2 rounded-md text-sm font-medium transition-colors;
 }
 .nav-link-active {
-  @apply text-primary-600 bg-primary-50;
+  @apply text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/50;
 }
 </style>
