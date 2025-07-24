@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { signInAnonymously, onAuthStateChanged, User } from 'firebase/auth'
 import { auth } from '../firebase'
 
@@ -27,7 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function initializeAuth() {
-    onAuthStateChanged(auth, (firebaseUser) => {
+    onAuthStateChanged(auth, firebaseUser => {
       user.value = firebaseUser
       isAuthenticated.value = !!firebaseUser
       isLoading.value = false
