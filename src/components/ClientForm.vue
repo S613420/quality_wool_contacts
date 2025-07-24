@@ -372,6 +372,16 @@ async function handleSubmit() {
     router.push('/clients')
   } catch (error) {
     console.error('Error saving client:', error)
+    
+    // The error is already handled by the store with a toast notification
+    // but we can add additional debugging here
+    if (error?.code === 'permission-denied') {
+      console.error('Permission denied - check Firestore rules and authentication')
+    } else if (error?.code === 'unavailable') {
+      console.error('Firestore service unavailable - check network connection')
+    } else if (error?.code === 'unauthenticated') {
+      console.error('User not authenticated - check authentication setup')
+    }
   } finally {
     isSubmitting.value = false
   }
