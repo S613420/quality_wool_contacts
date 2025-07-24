@@ -29,6 +29,11 @@ export interface Client {
   updatedAt?: Date
 }
 
+// Development mode fallback
+const isDevelopmentMode = import.meta.env.VITE_FIREBASE_PROJECT_ID === 'your-project-id'
+let mockClients: Client[] = []
+let mockIdCounter = 1
+
 export const useClientsStore = defineStore('clients', () => {
   const appStore = useAppStore()
   const clients = ref<Client[]>([])
@@ -70,11 +75,52 @@ export const useClientsStore = defineStore('clients', () => {
 
   const totalClients = computed(() => clients.value.length)
 
+  // Development mode functions
+  function createMockClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Client {
+    const now = new Date()
+    return {
+      id: `mock-${mockIdCounter++}`,
+      ...clientData,
+      createdAt: now,
+      updatedAt: now,
+    }
+  }
+
+  function saveMockData() {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('wool-tracker-mock-clients', JSON.stringify(mockClients))
+    }
+  }
+
+  function loadMockData() {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('wool-tracker-mock-clients')
+      if (saved) {
+        mockClients = JSON.parse(saved)
+        clients.value = [...mockClients]
+      }
+    }
+  }
+
   // Actions
   async function fetchClients() {
     try {
       isLoading.value = true
       appStore.setSyncStatus('syncing')
+
+      if (isDevelopmentMode) {
+        // Development mode - use mock data
+        console.log('Development mode: Using mock data for clients')
+        loadMockData()
+        appStore.setSyncStatus('synced')
+        appStore.addToast({
+          type: 'warning',
+          title: 'Development Mode',
+          message: 'Using local storage for client data. Configure Firebase for production.',
+          duration: 5000
+        })
+        return
+      }
 
       const q = query(clientsCollection, orderBy('name'))
       const querySnapshot = await getDocs(q)
@@ -90,11 +136,23 @@ export const useClientsStore = defineStore('clients', () => {
     } catch (error) {
       console.error('Error fetching clients:', error)
       appStore.setSyncStatus('error')
-      appStore.addToast({
-        type: 'error',
-        title: 'Failed to load clients',
-        message: 'Please check your connection and try again.',
-      })
+      
+      if (isDevelopmentMode) {
+        // Fallback to mock data even if Firebase fails
+        console.log('Firebase failed, falling back to mock data')
+        loadMockData()
+        appStore.addToast({
+          type: 'warning',
+          title: 'Using offline mode',
+          message: 'Firebase unavailable. Using local storage.',
+        })
+      } else {
+        appStore.addToast({
+          type: 'error',
+          title: 'Failed to load clients',
+          message: 'Please check your connection and try again.',
+        })
+      }
     } finally {
       isLoading.value = false
     }
@@ -105,6 +163,24 @@ export const useClientsStore = defineStore('clients', () => {
   ) {
     try {
       appStore.setSyncStatus('syncing')
+
+      if (isDevelopmentMode) {
+        // Development mode - use mock data
+        const newClient = createMockClient(clientData)
+        mockClients.push(newClient)
+        clients.value.push(newClient)
+        clients.value.sort((a, b) => a.name.localeCompare(b.name))
+        saveMockData()
+
+        appStore.setSyncStatus('synced')
+        appStore.addToast({
+          type: 'success',
+          title: 'Client added (offline)',
+          message: `${clientData.name} has been added to local storage.`,
+        })
+
+        return newClient
+      }
 
       const now = Timestamp.now()
       const docRef = await addDoc(clientsCollection, {
@@ -134,6 +210,24 @@ export const useClientsStore = defineStore('clients', () => {
     } catch (error) {
       console.error('Error adding client:', error)
       appStore.setSyncStatus('error')
+      
+      if (isDevelopmentMode) {
+        // Fallback to mock data
+        const newClient = createMockClient(clientData)
+        mockClients.push(newClient)
+        clients.value.push(newClient)
+        clients.value.sort((a, b) => a.name.localeCompare(b.name))
+        saveMockData()
+
+        appStore.addToast({
+          type: 'warning',
+          title: 'Client added offline',
+          message: `${clientData.name} saved locally. Configure Firebase to sync.`,
+        })
+
+        return newClient
+      }
+
       appStore.addToast({
         type: 'error',
         title: 'Failed to add client',
@@ -146,6 +240,32 @@ export const useClientsStore = defineStore('clients', () => {
   async function updateClient(id: string, clientData: Partial<Client>) {
     try {
       appStore.setSyncStatus('syncing')
+
+      if (isDevelopmentMode) {
+        // Development mode
+        const index = mockClients.findIndex(client => client.id === id)
+        if (index !== -1) {
+          mockClients[index] = {
+            ...mockClients[index],
+            ...clientData,
+            updatedAt: new Date(),
+          }
+          const clientIndex = clients.value.findIndex(client => client.id === id)
+          if (clientIndex !== -1) {
+            clients.value[clientIndex] = mockClients[index]
+            clients.value.sort((a, b) => a.name.localeCompare(b.name))
+          }
+          saveMockData()
+        }
+
+        appStore.setSyncStatus('synced')
+        appStore.addToast({
+          type: 'success',
+          title: 'Client updated (offline)',
+          message: 'Client information has been updated locally.',
+        })
+        return
+      }
 
       const clientRef = doc(db, 'clients', id)
       const updateData = {
@@ -187,6 +307,29 @@ export const useClientsStore = defineStore('clients', () => {
     try {
       appStore.setSyncStatus('syncing')
 
+      if (isDevelopmentMode) {
+        // Development mode
+        const index = mockClients.findIndex(client => client.id === id)
+        if (index !== -1) {
+          const clientName = mockClients[index].name
+          mockClients.splice(index, 1)
+          const clientIndex = clients.value.findIndex(client => client.id === id)
+          if (clientIndex !== -1) {
+            clients.value.splice(clientIndex, 1)
+          }
+          saveMockData()
+
+          appStore.addToast({
+            type: 'success',
+            title: 'Client deleted (offline)',
+            message: `${clientName} has been deleted locally.`,
+          })
+        }
+
+        appStore.setSyncStatus('synced')
+        return
+      }
+
       const clientRef = doc(db, 'clients', id)
       await deleteDoc(clientRef)
 
@@ -217,6 +360,11 @@ export const useClientsStore = defineStore('clients', () => {
 
   async function getClientById(id: string): Promise<Client | null> {
     try {
+      if (isDevelopmentMode) {
+        const client = mockClients.find(client => client.id === id)
+        return client || null
+      }
+
       const clientRef = doc(db, 'clients', id)
       const clientSnap = await getDoc(clientRef)
 
@@ -256,6 +404,11 @@ export const useClientsStore = defineStore('clients', () => {
 
   // Initialize real-time listener
   function startRealtimeListener() {
+    if (isDevelopmentMode) {
+      console.log('Development mode: Skipping real-time listener')
+      return () => {} // Return empty unsubscribe function
+    }
+
     const q = query(clientsCollection, orderBy('name'))
 
     return onSnapshot(

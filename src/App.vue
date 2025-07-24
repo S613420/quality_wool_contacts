@@ -58,12 +58,16 @@
         </div>
       </div>
     </div>
+
+    <!-- Firebase Status Component for debugging -->
+    <FirebaseStatus />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import AppHeader from './components/AppHeader.vue'
+import FirebaseStatus from './components/FirebaseStatus.vue'
 import { useAppStore } from './stores'
 import type { Toast } from './stores/app'
 
