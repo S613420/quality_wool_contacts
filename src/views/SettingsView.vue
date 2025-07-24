@@ -34,6 +34,7 @@
         <h2 class="text-lg font-semibold text-gray-900">App Information</h2>
       </div>
       <div class="card-body space-y-4">
+        <!-- Basic Version Info -->
         <div class="flex justify-between">
           <span class="text-gray-600">Version</span>
           <span class="font-medium">{{ getBuildInfo() }}</span>
@@ -43,24 +44,150 @@
           <span class="font-medium">#{{ versionInfo.buildNumber }}</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-gray-600">Commit Hash</span>
-          <span class="font-medium font-mono text-xs">{{
-            getShortCommitHash()
-          }}</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-600">Deployed</span>
-          <span class="font-medium text-sm">{{ getDeploymentDate() }}</span>
-        </div>
-        <div class="flex justify-between">
           <span class="text-gray-600">Environment</span>
           <span class="font-medium capitalize">{{
             versionInfo.environment
           }}</span>
         </div>
+
+        <!-- Enhanced Project ID Section -->
         <div class="flex justify-between">
           <span class="text-gray-600">Firebase Project</span>
-          <span class="font-medium text-xs">{{ firebaseProjectId }}</span>
+          <span class="font-medium text-xs" :class="projectIdClass">{{
+            displayProjectId
+          }}</span>
+        </div>
+
+        <!-- Enhanced Commit Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Commit Information
+          </h3>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Commit Hash</span>
+              <span class="font-medium font-mono text-xs">{{
+                getShortCommitHash()
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Commit Message</span>
+              <span
+                class="font-medium text-xs max-w-48 text-right truncate"
+                :title="versionInfo.commitMessage"
+              >
+                {{ versionInfo.commitMessage }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Commit Time</span>
+              <span class="font-medium text-xs">{{ getCommitDateTime() }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Time Since Commit</span>
+              <span class="font-medium text-xs text-blue-600">{{
+                getTimeSinceCommit()
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Deployment Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Deployment Information
+          </h3>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Deploy Date</span>
+              <span class="font-medium text-xs">{{ getDeploymentDate() }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Deploy Time</span>
+              <span class="font-medium text-xs">{{
+                getDeploymentDateTime()
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Time Since Deploy</span>
+              <span class="font-medium text-xs text-green-600">{{
+                getTimeSinceDeployment()
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">CI Start Time</span>
+              <span class="font-medium text-xs">{{ getCIStartTime() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Lapses Section -->
+        <div class="border-t pt-4" v-if="hasTimeLapseData">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Pipeline Timing
+          </h3>
+          <div class="space-y-2">
+            <div
+              class="flex justify-between"
+              v-if="versionInfo.timeLapses.commitToCI !== null"
+            >
+              <span class="text-gray-600 text-sm">Commit → CI Pipeline</span>
+              <span class="font-medium text-xs text-orange-600">{{
+                formatTimeLapse(versionInfo.timeLapses.commitToCI)
+              }}</span>
+            </div>
+            <div
+              class="flex justify-between"
+              v-if="versionInfo.timeLapses.ciToBuild !== null"
+            >
+              <span class="text-gray-600 text-sm">CI → Build Complete</span>
+              <span class="font-medium text-xs text-purple-600">{{
+                formatTimeLapse(versionInfo.timeLapses.ciToBuild)
+              }}</span>
+            </div>
+            <div
+              class="flex justify-between"
+              v-if="versionInfo.timeLapses.totalDeployTime !== null"
+            >
+              <span class="text-gray-600 text-sm">Total Deploy Time</span>
+              <span class="font-medium text-xs text-indigo-600 font-semibold">{{
+                formatTimeLapse(versionInfo.timeLapses.totalDeployTime)
+              }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Build Metrics Section -->
+        <div class="border-t pt-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            Build Environment
+          </h3>
+          <div class="space-y-2">
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Node Version</span>
+              <span class="font-medium text-xs">{{
+                versionInfo.buildMetrics.nodeVersion
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Platform</span>
+              <span class="font-medium text-xs capitalize">{{
+                versionInfo.buildMetrics.platform
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Architecture</span>
+              <span class="font-medium text-xs">{{
+                versionInfo.buildMetrics.arch
+              }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600 text-sm">Timezone</span>
+              <span class="font-medium text-xs">{{
+                versionInfo.buildMetrics.timezone
+              }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -85,20 +212,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAppStore } from '../stores'
 import {
   versionInfo,
   getBuildInfo,
   getShortCommitHash,
   getDeploymentDate,
+  getDeploymentDateTime,
+  getCommitDateTime,
+  getCIStartTime,
+  getTimeSinceCommit,
+  getTimeSinceDeployment,
+  formatTimeLapse,
 } from '../version'
 
 const appStore = useAppStore()
 const autoSync = ref(true)
 const offlineMode = ref(true)
-const firebaseProjectId =
-  import.meta.env.VITE_FIREBASE_PROJECT_ID || 'your-project-id'
+
+// Enhanced project ID handling
+const displayProjectId = computed(() => {
+  const projectId = versionInfo.projectId
+  if (projectId === 'your-project-id') {
+    return 'Not configured'
+  }
+  return projectId
+})
+
+const projectIdClass = computed(() => {
+  const projectId = versionInfo.projectId
+  if (projectId === 'your-project-id') {
+    return 'text-red-500 italic'
+  }
+  return 'text-gray-900'
+})
+
+// Check if we have time lapse data to display
+const hasTimeLapseData = computed(() => {
+  return (
+    versionInfo.timeLapses.commitToCI !== null ||
+    versionInfo.timeLapses.ciToBuild !== null ||
+    versionInfo.timeLapses.totalDeployTime !== null
+  )
+})
 
 function clearCache() {
   appStore.addToast({
