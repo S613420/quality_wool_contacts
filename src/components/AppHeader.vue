@@ -99,12 +99,39 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAppStore } from '../stores'
-import { versionInfo, getBuildInfo, getDeploymentDate } from '../version'
+import {
+  versionInfo,
+  getBuildInfo,
+  getDeploymentDate,
+  getDeploymentDateTime,
+  getCommitDateTime,
+  getTimeSinceCommit,
+  getTimeSinceDeployment,
+  formatTimeLapse,
+} from '../version'
 
 const appStore = useAppStore()
 
 const versionTooltip = computed(() => {
-  return `Version: ${versionInfo.version}.${versionInfo.buildNumber}\nCommit: ${versionInfo.commitHash}\nDeployed: ${getDeploymentDate()}\nEnvironment: ${versionInfo.environment}`
+  const lines = [
+    `Version: ${versionInfo.version}.${versionInfo.buildNumber}`,
+    `Commit: ${versionInfo.commitHash.substring(0, 7)}`,
+    `Commit Message: ${versionInfo.commitMessage}`,
+    `Commit Time: ${getCommitDateTime()}`,
+    `Deploy Time: ${getDeploymentDateTime()}`,
+    `Environment: ${versionInfo.environment}`,
+    `Project: ${versionInfo.projectId}`,
+    `Time Since Deploy: ${getTimeSinceDeployment()}`,
+  ]
+
+  // Add timing information if available
+  if (versionInfo.timeLapses.totalDeployTime !== null) {
+    lines.push(
+      `Pipeline Duration: ${formatTimeLapse(versionInfo.timeLapses.totalDeployTime)}`
+    )
+  }
+
+  return lines.join('\n')
 })
 
 const syncStatusText = computed(() => {
