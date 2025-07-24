@@ -10,7 +10,6 @@ import {
   getDoc,
   query,
   orderBy,
-  where,
   onSnapshot,
   Timestamp,
 } from 'firebase/firestore'
@@ -56,7 +55,9 @@ export const useClientsStore = defineStore('clients', () => {
     }
 
     if (selectedRegion.value) {
-      filtered = filtered.filter(client => client.region === selectedRegion.value)
+      filtered = filtered.filter(
+        client => client.region === selectedRegion.value
+      )
     }
 
     return filtered
@@ -99,7 +100,9 @@ export const useClientsStore = defineStore('clients', () => {
     }
   }
 
-  async function addClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) {
+  async function addClient(
+    clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>
+  ) {
     try {
       appStore.setSyncStatus('syncing')
 
@@ -254,22 +257,26 @@ export const useClientsStore = defineStore('clients', () => {
   // Initialize real-time listener
   function startRealtimeListener() {
     const q = query(clientsCollection, orderBy('name'))
-    
-    return onSnapshot(q, (snapshot) => {
-      clients.value = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate(),
-      })) as Client[]
-      
-      if (!isLoading.value) {
-        appStore.setSyncStatus('synced')
+
+    return onSnapshot(
+      q,
+      snapshot => {
+        clients.value = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate(),
+          updatedAt: doc.data().updatedAt?.toDate(),
+        })) as Client[]
+
+        if (!isLoading.value) {
+          appStore.setSyncStatus('synced')
+        }
+      },
+      error => {
+        console.error('Error in real-time listener:', error)
+        appStore.setSyncStatus('error')
       }
-    }, (error) => {
-      console.error('Error in real-time listener:', error)
-      appStore.setSyncStatus('error')
-    })
+    )
   }
 
   return {
@@ -278,12 +285,12 @@ export const useClientsStore = defineStore('clients', () => {
     isLoading,
     searchQuery,
     selectedRegion,
-    
+
     // Computed
     filteredClients,
     regions,
     totalClients,
-    
+
     // Actions
     fetchClients,
     addClient,

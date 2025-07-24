@@ -1,8 +1,5 @@
 <template>
-  <ClientForm 
-    :client-id="clientId" 
-    :mode="mode" 
-  />
+  <ClientForm :client-id="clientId" :mode="mode" />
 </template>
 
 <script setup lang="ts">
