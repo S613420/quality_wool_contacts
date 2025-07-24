@@ -2,8 +2,17 @@ name: Deploy to Firebase App Hosting
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - development
 
 jobs:
   deploy:
@@ -37,10 +46,19 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_APP_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
       - name: Deploy to Firebase App Hosting
         uses: FirebaseExtended/action-app-hosting-deploy@v0
         with:
           serviceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          backend: quality-wool-contacts  # Your backend ID
+          backend: ${{ github.ref == 'refs/heads/main' && 'zidov-net' || 'zidov-net-dev' }}
+        
+      - name: Display deployment info
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "🏭 Production deployed to: https://quality-wool-contacts--zidov-net.asia-east1.hosted.app"
+          else
+            echo "🧪 Development deployed to: https://quality-wool-contacts--zidov-net-dev.asia-east1.hosted.app"
+          fi
