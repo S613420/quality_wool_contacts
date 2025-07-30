@@ -76,6 +76,64 @@ export const useClientsStore = defineStore('clients', () => {
       isLoading.value = true
       appStore.setSyncStatus('syncing')
 
+      // Check if Firebase is properly configured
+      const firebaseConfig = {
+        apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      }
+      
+      if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'your-api-key' || 
+          !firebaseConfig.projectId || firebaseConfig.projectId === 'your-project-id') {
+        console.warn('Firebase not properly configured. Using mock data.')
+        
+        // Set mock data for development/demo purposes
+        clients.value = [
+          {
+            id: 'demo-1',
+            name: 'Sunrise Farm',
+            contactName: 'John Smith',
+            phone: '+61 123 456 789',
+            email: 'john@sunrisefarm.com.au',
+            address: '123 Farm Road, Woolville NSW 2000',
+            region: 'New South Wales',
+            notes: 'Preferred pickup time: Morning',
+            createdAt: new Date('2024-01-15'),
+            updatedAt: new Date('2024-01-15'),
+          },
+          {
+            id: 'demo-2',
+            name: 'Green Valley Ranch',
+            contactName: 'Sarah Johnson',
+            phone: '+61 987 654 321',
+            email: 'sarah@greenvalley.com.au',
+            address: '456 Valley Road, Farmington VIC 3000',
+            region: 'Victoria',
+            notes: 'Large property, call ahead',
+            createdAt: new Date('2024-01-10'),
+            updatedAt: new Date('2024-01-20'),
+          },
+          {
+            id: 'demo-3',
+            name: 'Highland Wool Co.',
+            contactName: 'Mike Wilson',
+            phone: '+61 555 123 456',
+            address: '789 Highland Drive, Wooltown QLD 4000',
+            region: 'Queensland',
+            notes: 'Premium quality wool',
+            createdAt: new Date('2024-01-05'),
+            updatedAt: new Date('2024-01-18'),
+          },
+        ]
+        
+        appStore.setSyncStatus('offline')
+        appStore.addToast({
+          type: 'warning',
+          title: 'Demo Mode',
+          message: 'Firebase not configured. Showing demo data.',
+        })
+        return
+      }
+
       const q = query(clientsCollection, orderBy('name'))
       const querySnapshot = await getDocs(q)
 
@@ -90,11 +148,26 @@ export const useClientsStore = defineStore('clients', () => {
     } catch (error) {
       console.error('Error fetching clients:', error)
       appStore.setSyncStatus('error')
-      appStore.addToast({
-        type: 'error',
-        title: 'Failed to load clients',
-        message: 'Please check your connection and try again.',
-      })
+      
+      // Check if it's a Firebase configuration error
+      if (error instanceof Error && (
+        error.message.includes('api-key') || 
+        error.message.includes('project') ||
+        error.message.includes('auth') ||
+        error.message.includes('invalid-api-key')
+      )) {
+        appStore.addToast({
+          type: 'error',
+          title: 'Firebase Configuration Error',
+          message: 'Please check your Firebase settings and try again.',
+        })
+      } else {
+        appStore.addToast({
+          type: 'error',
+          title: 'Failed to load clients',
+          message: 'Please check your connection and try again.',
+        })
+      }
     } finally {
       isLoading.value = false
     }
@@ -256,6 +329,18 @@ export const useClientsStore = defineStore('clients', () => {
 
   // Initialize real-time listener
   function startRealtimeListener() {
+    // Check if Firebase is properly configured
+    const firebaseConfig = {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    }
+    
+    if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'your-api-key' || 
+        !firebaseConfig.projectId || firebaseConfig.projectId === 'your-project-id') {
+      console.warn('Firebase not properly configured. Skipping real-time listener.')
+      return () => {} // Return empty unsubscribe function
+    }
+
     const q = query(clientsCollection, orderBy('name'))
 
     return onSnapshot(
@@ -275,6 +360,11 @@ export const useClientsStore = defineStore('clients', () => {
       error => {
         console.error('Error in real-time listener:', error)
         appStore.setSyncStatus('error')
+        appStore.addToast({
+          type: 'error',
+          title: 'Connection Error',
+          message: 'Lost connection to server. Some features may not work.',
+        })
       }
     )
   }
